@@ -21,31 +21,44 @@ product_name = []
 product_price = []
 
 for link in pagina_atual:
-    req = requests.get(link, headers=headers)
-    soup = BeautifulSoup(req.text, 'html.parser')
-    products = soup.find_all(class_='productCard')
+    try:
+        req = requests.get(link, headers=headers)
+        req.raise_for_status()  # Lança uma exceção
 
-    for product in products:
-        product_path = (product.find('a'))['href']
-        match = re.search(r'(/produto/\d+)', product_path) #retornar apenas o numero dos produtos
-        if match:
-            product_path = match.group(1)
-        product_link.append(f"https://www.kabum.com.br{product_path}")
+        soup = BeautifulSoup(req.text, 'html.parser')
+        products = soup.find_all(class_='productCard')
 
-        name = product.find(class_='nameCard')
-        product_name.append(name.text.strip())
+        for product in products:
+            product_path = (product.find('a'))['href']
+            match = re.search(r'(/produto/\d+)', product_path) #retornar apenas o numero dos produtos
+            if match:
+                product_path = match.group(1)
+            product_link.append(f"https://www.kabum.com.br{product_path}")
 
-        price = product.find(class_='priceCard')
-        price_text = price.text.strip()
+            name = product.find(class_='nameCard')
+            product_name.append(name.text.strip())
 
-        if price_text == "R$ ---":
-            product_price.append(None) # retorna nan caso o produto esteja esgotado (algo deu errado, revisar)
-        else:
-            product_price.append(price_text)  # Mantém o preço como string
+            price = product.find(class_='priceCard')
+            price_text = price.text.strip()
+
+            if price_text == "R$ ---":
+                product_price.append(None) # retorna nan caso o produto esteja esgotado (algo deu errado, revisar)
+            else:
+                product_price.append(price_text)  # Mantém o preço como string
+                
+    except requests.exceptions.RequestException as e:
+        print(f"Ocorreu um erro na solicitação: {str(e)}")
+
+    except Exception as e:
+        print(f"Ocorreu um erro durante o scraping: {str(e)}")
 
 # Criando DataFrame
 df = pd.DataFrame({"Link": product_link, "Nome": product_name, "Preço": product_price}, columns=["Link", "Nome", "Preço"])
 
 # CSV
-df.to_csv('processadores.csv')
+try:
+    df.to_csv('processadores.csv', index=False)
+    print("Arquivo CSV criado com sucesso!")
+except Exception as e:
+    print(f"Ocorreu um erro ao salvar o arquivo CSV: {str(e)}")
 
