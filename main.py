@@ -33,7 +33,7 @@ for link in pagina_atual:
             match = re.search(r'(/produto/\d+)', product_path) #retornar apenas o numero dos produtos
             if match:
                 product_path = match.group(1)
-            product_link.append(f"https://www.kabum.com.br{product_path}")
+            product_link.append(f"https://www.kabum.com.br{product_path} ")
 
             name = product.find(class_='nameCard')
             product_name.append(name.text.strip())
@@ -57,7 +57,7 @@ df = pd.DataFrame({"Link": product_link, "Nome": product_name, "Preço": product
 
 # CSV
 try:
-    df.to_csv('processadores.csv', index=False)
+    df.to_csv('processador.csv', index=False)
     print("Arquivo CSV criado com sucesso!")
 except Exception as e:
     print(f"Ocorreu um erro ao salvar o arquivo CSV: {str(e)}")
