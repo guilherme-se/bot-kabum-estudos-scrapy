@@ -2,6 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import pandas as pd
+import datetime
 
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -52,8 +53,10 @@ for link in pagina_atual:
     except Exception as e:
         print(f"Ocorreu um erro durante o scraping: {str(e)}")
 
+data_atual = datetime.date.today()
+
 # Criando DataFrame
-df = pd.DataFrame({"Link": product_link, "Nome": product_name, "Preço": product_price}, columns=["Link", "Nome", "Preço"])
+df = pd.DataFrame({"Link": product_link, "Nome": product_name, "Preço": product_price, "Data": data_atual}, columns=["Link", "Nome", "Preço", "Data"])
 
 # CSV
 try:
